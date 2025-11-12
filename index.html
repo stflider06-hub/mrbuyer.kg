@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ru">
+<!-- =============================================
+EDIT GUIDE / КАК ПРАВИТЬ (коротко)
+1) Фирменные цвета: см. блок :root в <style> → поменять переменные --brand и --accent.
+2) Название бренда: см. два места с текстом "Mr Buyer" (шапка и подвал) → заменить.
+3) Контакты: 
+   - WhatsApp в шапке: href="https://wa.me/996000000000" → ваш номер в формате 996XXXXXXXXX
+   - Телефон в баннере: href="tel:+996700000000" → ваш номер
+   - Контакты в подвале: телефон, email, Telegram
+4) SEO: <title> и meta description → под свой текст.
+5) Категории: блок "Категории" → подписи можно менять прямо в <span>.
+6) Карточки-демо: массив const demo внизу <script> → редактируйте title, price, tag, img.
+7) Модалка заявки: поля Имя/Телефон/Сообщение → можно переименовать, а обработчик sendBtn — подключить к TG-боту/Google Forms позже.
+8) Стили: скругления/тени/шрифты — в :root и классах. 
+Всегда ищите маркер
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mr Buyer — Поиск и выкуп товаров из Китая</title>
+  <!-EDIT: SEO Описание страницы -->
+  <meta name="description" content="Баер‑сервис Mr Buyer: ищем, выкупаем и доставляем товары из Китая. Оптом и розница. Быстрая заявка и расчёт." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+  :root{
+  /* === Фирменные цвета ViRON PRO === */
+  --brand:#007BFF;      /* основной ярко-синий ViRON PRO */
+  --accent:#00C8FF;     /* голубой акцент */
+  --bg:#0A0F1A;         /* тёмный фон */
+  --surface:#111827;    /* фон карточек и панелей */
+  --muted:#9CA3AF;      /* вторичный текст */
+  --text:#F9FAFB;       /* основной текст */
+  --success:#22C55E;
+  --danger:#EF4444;
+  --radius:16px;
+  --shadow: 0 10px 30px rgba(0,0,0,.25);
+  --shadow-soft: 0 6px 18px rgba(0,0,0,.18);
+  --max:1200px;
+}
+
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial; background:var(--bg); color:var(--text)}
+    a{color:inherit; text-decoration:none}
+    .container{max-width:var(--max); margin:0 auto; padding:0 20px}
+
+    /* Header */
+    .header{position:sticky; top:0; z-index:50; background:rgba(12,15,20,.8); backdrop-filter: blur(10px); border-bottom:1px solid rgba(255,255,255,.06)}
+    .nav{display:flex; align-items:center; gap:16px; padding:14px 0}
+    .brand{display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.3px}
+    .brand-badge{width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg, var(--brand), #2AA7FF); display:grid; place-items:center; box-shadow:var(--shadow-soft)}
+    .brand-badge svg{width:20px; height:20px; fill:white}
+
+    .nav-actions{margin-left:auto; display:flex; align-items:center; gap:10px}
+    .btn{display:inline-flex; align-items:center; gap:8px; padding:12px 16px; border-radius:12px; border:1px solid rgba(255,255,255,.08); background:var(--surface); color:var(--text); font-weight:600}
+    .btn:hover{transform:translateY(-1px); box-shadow:var(--shadow-soft)}
+    .btn-primary{background:var(--accent); color:#111; border-color:transparent}
+
+    /* Hero + search */
+    .hero{padding:32px 0 18px}
+    .searchbar{display:grid; grid-template-columns:1fr auto auto; gap:10px; background:var(--surface); border:1px solid rgba(255,255,255,.06); padding:10px; border-radius:16px; box-shadow:var(--shadow-soft)}
+    .searchbar input{background:#0D1117; border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:14px 14px; color:var(--text); outline:none}
+    .searchbar select{background:#0D1117; border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:14px; color:var(--text)}
+
+    .quick-filters{display:flex; flex-wrap:wrap; gap:10px; margin-top:12px}
+    .chip{padding:10px 14px; border-radius:999px; background:#0D1117; color:var(--muted); border:1px solid rgba(255,255,255,.06)}
+    .chip.active{color:#111; background:var(--accent); border-color:transparent}
+
+    /* Sections */
+    .section{padding:18px 0 8px}
+    .section h2{font-size:20px; margin:0 0 14px}
+
+    /* Categories grid */
+    .cats{display:grid; grid-template-columns:repeat(6,1fr); gap:12px}
+    .cat{background:var(--surface); border:1px solid rgba(255,255,255,.06); border-radius:14px; padding:14px; display:flex; align-items:center; gap:10px; box-shadow:var(--shadow-soft)}
+    .cat svg{width:20px; height:20px; opacity:.9}
+    .cat span{font-weight:600}
+
+    /* Cards */
+    .grid{display:grid; grid-template-columns:repeat(4,1fr); gap:14px}
+    .card{background:var(--surface); border:1px solid rgba(255,255,255,.06); border-radius:16px; overflow:hidden; box-shadow:var(--shadow-soft); display:flex; flex-direction:column}
+    .card .thumb{position:relative; aspect-ratio: 4/3; background:#0D1117}
+    .card .thumb img{width:100%; height:100%; object-fit:cover; display:block}
+    .badge{position:absolute; top:10px; left:10px; background:var(--brand); color:white; font-size:12px; padding:6px 10px; border-radius:999px; font-weight:700}
+    .card .body{padding:12px 14px 14px; display:flex; flex-direction:column; gap:8px}
+    .title{font-weight:700}
+    .meta{font-size:12px; color:var(--muted)}
+    .price{font-weight:800; font-size:18px}
+
+    .card .cta{display:flex; gap:10px; margin-top:auto}
+    .btn-whatsapp{flex:1; background:#1FAF38; color:#fff; border:none}
+    .btn-ask{flex:1; background:var(--brand); color:#fff; border:none}
+
+    /* CTA banner */
+    .cta-banner{margin:18px 0; padding:16px; border-radius:16px; background:linear-gradient(135deg, var(--brand), #5EC4FF); display:flex; align-items:center; gap:16px; color:#fff; box-shadow:var(--shadow)}
+    .cta-banner .cta-text{flex:1; font-weight:700; font-size:18px}
+    .cta-banner .cta-actions{display:flex; gap:10px}
+
+    /* Footer */
+    .footer{margin-top:24px; padding:26px 0 40px; border-top:1px solid rgba(255,255,255,.06); color:var(--muted); font-size:14px}
+    .footer-grid{display:grid; grid-template-columns:2fr 1fr 1fr; gap:20px}
+    .footer a{color:var(--muted)}
+
+    /* Modal */
+    .overlay{position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; padding:20px}
+    .modal{width:100%; max-width:520px; background:var(--surface); border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:18px; box-shadow:var(--shadow)}
+    .modal h3{margin:0 0 12px}
+    .modal .row{display:grid; gap:10px; grid-template-columns:1fr 1fr}
+    .modal input, .modal textarea{width:100%; background:#0D1117; border:1px solid rgba(255,255,255,.1); border-radius:12px; padding:12px; color:var(--text)}
+    .modal textarea{min-height:110px; resize:vertical}
+
+    /* Responsive */
+    @media(max-width:1100px){ .grid{grid-template-columns:repeat(3,1fr)} .cats{grid-template-columns:repeat(4,1fr)} }
+    @media(max-width:780px){ .grid{grid-template-columns:repeat(2,1fr)} .cats{grid-template-columns:repeat(3,1fr)} .searchbar{grid-template-columns:1fr} }
+    @media(max-width:460px){ .grid{grid-template-columns:1fr} .cats{grid-template-columns:repeat(2,1fr)} }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container nav">
+      <!-- EDIT: Название бренда в шапке -->
+      <a class="brand" href="index.html">
+        <span class="brand-badge" aria-hidden="true">
+          <!-- простая иконка корзины -->
+          <svg viewBox="0 0 24 24"><path d="M7 4h-2l-2 7v2h2l2 7h10l2-7h2v-2l-2-7h-2l-1 3h-8l-1-3zm3 18a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm6 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg>
+        </span>
+        <span>Mr Buyer</span>       </a>
+      <nav class="nav-actions">
+        <a href="#" class="btn" id="btn-open-modal">Быстрый запрос</a>
+        <!-- EDIT: WhatsApp ссылка (в формате https://wa.me/996709751050) -->
+        <a href="https://wa.me/996709751050" target="_blank" class="btn btn-primary">Написать в WhatsApp</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- HERO + SEARCH -->
+    <section class="hero">
+      <div class="searchbar">
+        <input type="text" placeholder="Что ищем? Введите ссылку, фото или название товара…" aria-label="Поиск" />
+        <select aria-label="Тип заказа">
+          <option value="retail">Розница</option>
+          <option value="wholesale">Оптом</option>
+        </select>
+        <button class="btn btn-primary" id="btn-search">Найти</button>
+      </div>
+      <div class="quick-filters">
+        <span class="chip active">Популярное</span>
+       
+      </div>
+    </section>
+
+    <!-- CATEGORIES -->
+    <section class="section">
+      <!-- EDIT: Заголовок и подписи категорий -->
+      <h2>Категории</h2>
+      <div class="cats">
+<a class="cat" href="electronics.html">
+  <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2l4 4-4 4-4-4 4-4zm-7 7l4 4-4 4-4-4 4-4zm14 0l4 4-4 4-4-4 4-4zM12 14l4 4-4 4-4-4 4-4z"/></svg>
+  <span>Электроника</span>
+</a>
+<a class="cat" href="clothes.html">
+  <svg viewBox="0 0 24 24"><path fill="currentColor" d="M4 4h16v2H4zm2 4h12v12H6z"/></svg>
+  <span>Одежда</span>
+</a>
+
+  <a class="cat" href="home.html">Дом и Сад</a>
+
+     <a class="cat" href="kids.html">Детские</a>   
+
+    <a class="cat" href="beauty.html">
+  <svg viewBox="0 0 24 24"><path fill="currentColor" d="M7 6h10v2H7zM5 10h14v2H5zM7 14h10v2H7z"/></svg>
+  <span>Красота</span>
+</a>
+
+        <a class="cat" href="auto.html">
+  <svg viewBox="0 0 24 24"><path fill="currentColor" d="M4 17h16v2H4zm0-6h16v2H4zm0-6h16v2H4z"/></svg>
+  <span>Авто</span>
+</a>
+
+
+      </div>
+    </section>
+
+    <!-- FEATURED / CARDS -->
+    <section class="section">
+      <h2>Подборки для быстрого запуска</h2>
+      <!-- EDIT: Секция карточек. Контент берётся из массива demo внизу скрипта -->
+      <div class="grid" id="cards"></div>
+    </section>
+
+    <!-- CTA BANNER -->
+    <div class="cta-banner">
+      <!-- EDIT: Текст баннера-CTA -->
+      <div class="cta-text">Нет ссылки/фото? Расскажите, что нужно — мы найдём и рассчитаем стоимость за 15 минут.</div>
+      <div class="cta-actions">
+        <a class="btn" id="btn-open-modal-2">Сделать запрос</a>
+        <!-- EDIT: Номер телефона в баннере -->
+        <a class="btn btn-primary" href="tel:+996709751050">Позвонить</a>
+      </div>
+    </div>
+
+    <!-- INFO BLOCKS -->
+    <section class="section">
+      <h2>Как это работает</h2>
+      <div class="grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="card">
+          <div class="body">
+            <div class="title">1) Вы оставляете запрос</div>
+            <div class="meta">Ссылка, фото или описание. Укажем аналоги и лучшие цены.</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="body">
+            <div class="title">2) Мы выкупаем и проверяем</div>
+            <div class="meta">Проверка качества, фото/видео‑отчёт, консолидация на складе.</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="body">
+            <div class="title">3) Доставка и сопровождение</div>
+            <div class="meta">Карго в Бишкек,РФ маркировка, документы. Под ключ.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <!-- EDIT: Название бренда и иконка в подвале -->
+      <div class="brand" style="margin-bottom:10px">
+          <span class="brand-badge" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4h-2l-2 7v2h2l2 7h10l2-7h2v-2l-2-7h-2l-1 3h-8l-1-3z"/></svg></span>
+          <span>Mr Buyer</span>
+        </div>
+        <!-- EDIT: Короткое описание в подвале -->
+        <div>Баер‑сервис. Оптом и розница. Китай → Бишкек/РФ.</div>
+        <div style="margin-top:8px">ИНН/ОГРН: *** · © 2025 <!-- EDIT: ваши реквизиты/год --></div>
+      </div>
+      <div>
+        <div style="font-weight:700; color:#fff; margin-bottom:8px">Навигация</div>
+        <a href="#">Категории</a><br/>
+        <a href="#">О сервисе</a><br/>
+        <a href="#">Договор оферты</a>
+      </div>
+      <div>
+        <div style="font-weight:700; color:#fff; margin-bottom:8px">Контакты</div>
+        <!-- EDIT: Телефон в подвале -->
+        <a href="tel:+996709751050">+996 709 751-050</a><br/>
+        <!-- EDIT: Email в подвале -->
+        <a href="mailto:info@mrbuyer.kg">pochta1987.1@gmail.com</a><br/>
+        
+      </div>
+    </div>
+  </footer>
+
+  <!-- MODAL -->
+  <div class="overlay" id="overlay">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <!-- EDIT: Заголовок модалки и поля ниже -->
+      <h3 id="modal-title">Быстрый запрос</h3>
+      <div class="row">
+        <input placeholder="Имя" />
+        <input placeholder="Телефон" />
+      </div>
+      <div class="row" style="grid-template-columns:1fr">
+        <textarea placeholder="Ссылка на товар / описание / фото (опционально) "></textarea>
+      </div>
+      <div style="display:flex; gap:10px; margin-top:12px">
+        <button class="btn" id="btn-close">Отмена</button>
+        <button class="btn btn-primary" id="btn-send">Отправить</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // демо‑данные карточек
+    // === EDIT: Карточки для главной. Меняйте title/price/tag/img ===
+    const demo = [
+      {title:'Беспроводной компрессор ViRON PRO', price:'3 450 сом', tag:'Хит', img:'https://picsum.photos/seed/air/640/480'},
+      {title:'Усилитель Wi‑Fi репитер', price:'1 290 сом', tag:'Топ‑цена', img:'https://picsum.photos/seed/wifi/640/480'},
+      {title:'Женское пончо тёплое', price:'1 990 сом', tag:'Новинка', img:'https://picsum.photos/seed/poncho/640/480'},
+      {title:'Секатор аккумуляторный', price:'6 900 сом', tag:'Оптом', img:'https://picsum.photos/seed/sec/640/480'},
+      {title:'Снуд флисовый', price:'650 сом', tag:'Быстро', img:'https://picsum.photos/seed/snood/640/480'},
+      {title:'Рашгард мужской', price:'1 450 сом', tag:'New', img:'https://picsum.photos/seed/rash/640/480'},
+      {title:'Насадка пылесос‑бловер', price:'990 сом', tag:'Sale', img:'https://picsum.photos/seed/blow/640/480'},
+      {title:'Щётка‑скраббер электрический', price:'2 390 сом', tag:'Хит', img:'https://picsum.photos/seed/scrub/640/480'}
+    ];
+
+    const $cards = document.getElementById('cards');
+    $cards.innerHTML = demo.map(item => `
+      <article class="card">
+        <div class="thumb">
+          <span class="badge">${item.tag}</span>
+          <img src="${item.img}" alt="${item.title}" loading="lazy"/>
+        </div>
+        <div class="body">
+          <div class="title">${item.title}</div>
+          <div class="meta">Доставка: 7‑25 дней · Гарантия приёмки</div>
+          <div class="price">${item.price}</div>
+          <div class="cta">
+            <button class="btn btn-whatsapp">В WhatsApp</button>
+            <button class="btn btn-ask">Запрос</button>
+          </div>
+        </div>
+      </article>
+    `).join('');
+
+    // Модалка
+    const overlay = document.getElementById('overlay');
+    const open1 = document.getElementById('btn-open-modal');
+    const open2 = document.getElementById('btn-open-modal-2');
+    const closeBtn = document.getElementById('btn-close');
+    const sendBtn = document.getElementById('btn-send');
+
+    [open1, open2].forEach(b=> b && b.addEventListener('click', ()=> overlay.style.display = 'flex'));
+    closeBtn.addEventListener('click', ()=> overlay.style.display = 'none');
+    overlay.addEventListener('click', (e)=>{ if(e.target===overlay) overlay.style.display='none' });
+    sendBtn.addEventListener('click', ()=>{
+      overlay.style.display='none';
+      alert('Спасибо! Мы свяжемся с вами в ближайшее время.');
+    });
+
+    // Поиск (демо)
+    document.getElementById('btn-search').addEventListener('click', ()=>{
+      window.scrollTo({top: document.querySelector('.section').offsetTop - 10, behavior:'smooth'});
+    });
+  </script>
+</body>
+</html>

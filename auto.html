@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <!-- =============================================
+  EDIT GUIDE / КАК ПРАВИТЬ (коротко)
+  1) Пути: логотип, хлебные крошки и кнопка «Назад» ведут на index.html.
+  2) SEO: поменяйте <title> и meta description по желанию.
+  3) Цвета ViRON PRO правятся в :root (как на главной).
+  4) Подкатегории: редактируйте массив subcats (key, name, icon).
+  5) Товары: редактируйте массив items (title/price/tag/img/brand/subcat/fit).
+  6) Фильтры: поиск, бренд, совместимость (fit), сортировка, чипы подкатегорий.
+  ============================================= -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Категория — Авто | Mr Buyer</title>
+  <meta name="description" content="Авто‑товары под заказ из Китая: электроника, салон, экстерьер, расходники, инструменты. ViRON PRO и другие бренды. Розница и опт." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      /* === ViRON PRO === */
+      --brand:#007BFF; --accent:#00C8FF; --bg:#0A0F1A; --surface:#111827; --muted:#9CA3AF; --text:#F9FAFB;
+      --success:#22C55E; --danger:#EF4444; --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.25); --shadow-soft:0 6px 18px rgba(0,0,0,.18); --max:1200px;
+    }
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial; background:var(--bg); color:var(--text)}
+    a{color:inherit; text-decoration:none}
+    .container{max-width:var(--max); margin:0 auto; padding:0 20px}
+
+    .header{position:sticky; top:0; z-index:50; background:rgba(10,15,26,.8); backdrop-filter: blur(10px); border-bottom:1px solid rgba(255,255,255,.06)}
+    .nav{display:flex; align-items:center; gap:16px; padding:14px 0}
+    .brand{display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.3px}
+    .brand-badge{width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg, var(--brand), var(--accent)); display:grid; place-items:center; box-shadow:var(--shadow-soft)}
+    .brand-badge svg{width:20px; height:20px; fill:white}
+    .nav-actions{margin-left:auto; display:flex; align-items:center; gap:10px}
+    .btn{display:inline-flex; align-items:center; gap:8px; padding:12px 16px; border-radius:12px; border:1px solid rgba(255,255,255,.08); background:var(--surface); color:var(--text); font-weight:600; transition:.2s}
+    .btn:hover{transform:translateY(-1px); box-shadow:var(--shadow-soft)}
+    .btn-primary{background:var(--brand); color:#fff; border-color:transparent}
+
+    .breadcrumbs{display:flex; gap:8px; align-items:center; font-size:13px; color:var(--muted); padding:10px 0}
+    .breadcrumbs a{color:var(--muted)}
+
+    .hero{padding:20px 0}
+    .hero h1{margin:6px 0 12px; font-size:28px}
+    .searchbar{display:grid; grid-template-columns:1fr 180px 180px 180px auto; gap:10px; background:var(--surface); border:1px solid rgba(255,255,255,.06); padding:10px; border-radius:16px; box-shadow:var(--shadow-soft)}
+    .searchbar input, .searchbar select{background:#0D1117; border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:12px 14px; color:var(--text)}
+
+    .subcats{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
+    .chip{padding:10px 14px; border-radius:999px; background:#0D1117; color:var(--muted); border:1px solid rgba(255,255,255,.06); cursor:pointer}
+    .chip.active{color:#111; background:var(--accent); border-color:transparent}
+
+    .grid{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:16px}
+    .card{background:var(--surface); border:1px solid rgba(255,255,255,.06); border-radius:16px; overflow:hidden; box-shadow:var(--shadow-soft); display:flex; flex-direction:column}
+    .card .thumb{position:relative; aspect-ratio: 4/3; background:#0D1117}
+    .card .thumb img{width:100%; height:100%; object-fit:cover; display:block}
+    .badge{position:absolute; top:10px; left:10px; background:var(--brand); color:white; font-size:12px; padding:6px 10px; border-radius:999px; font-weight:700}
+    .card .body{padding:12px 14px 14px; display:flex; flex-direction:column; gap:8px}
+    .title{font-weight:700}
+    .meta{font-size:12px; color:var(--muted)}
+    .price{font-weight:800; font-size:18px}
+
+    .footer{margin-top:24px; padding:26px 0 40px; border-top:1px solid rgba(255,255,255,.06); color:var(--muted); font-size:14px}
+    .footer-grid{display:grid; grid-template-columns:2fr 1fr 1fr; gap:20px}
+
+    @media(max-width:1100px){ .grid{grid-template-columns:repeat(3,1fr)} }
+    @media(max-width:780px){ .grid{grid-template-columns:repeat(2,1fr)} .searchbar{grid-template-columns:1fr} }
+    @media(max-width:460px){ .grid{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container nav">
+      <a class="brand" href="index.html">
+        <span class="brand-badge" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M7 4h-2l-2 7v2h2l2 7h10l2-7h2v-2l-2-7h-2l-1 3h-8l-1-3zm3 18a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm6 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg>
+        </span>
+        <span>Mr Buyer</span>
+      </a>
+      <nav class="nav-actions">
+        <a href="#" class="btn" onclick="document.getElementById('overlay').style.display='flex'">Быстрый запрос</a>
+        <a href="https://wa.me/996709751050" target="_blank" class="btn btn-primary">Написать в WhatsApp</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="breadcrumbs">
+      <a href="index.html">Главная</a>
+      <span>›</span>
+      <span>Авто</span>
+    </nav>
+
+    <section class="hero">
+      <h1>Авто‑товары</h1>
+      <div class="searchbar">
+        <input id="q" type="text" placeholder="Поиск по авто: регистратор, чехлы, компрессор…" aria-label="Поиск" />
+        <select id="brand">
+          <option value="all">Все бренды</option>
+          <option value="ViRON PRO">ViRON PRO</option>
+          <option value="V-Puls">V-Puls</option>
+          <option value="Другие">Другие</option>
+        </select>
+        <select id="fit">
+          <option value="all">Совместимость</option>
+          <option value="universal">Универсально</option>
+          <option value="sedan">Седан</option>
+          <option value="suv">SUV</option>
+          <option value="truck">Пикап/Груз</option>
+        </select>
+        <select id="sort">
+          <option value="popular">Сначала популярные</option>
+          <option value="cheap">Сначала дешёвые</option>
+          <option value="expensive">Сначала дорогие</option>
+        </select>
+        <button class="btn btn-primary" id="btn-search">Найти</button>
+      </div>
+      <div class="subcats" id="subcats"></div>
+      <div class="meta" id="results-info" style="margin-top:8px"></div>
+    </section>
+
+    <section>
+      <div class="grid" id="cards"></div>
+      <div class="meta" id="empty-state" style="display:none; padding:12px">Ничего не найдено. Измените запрос или фильтр.</div>
+      <div style="display:flex; gap:10px; margin-top:16px">
+        <a href="index.html" class="btn">← Назад</a>
+        <a href="#" class="btn btn-primary" onclick="document.getElementById('overlay').style.display='flex'">Сделать запрос</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:10px">
+          <span class="brand-badge" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4h-2l-2 7v2h2l2 7h10l2-7h2v-2l-2-7h-2l-1 3h-8l-1-3z"/></svg></span>
+          <span>Mr Buyer</span>
+        </div>
+        <div>Баер‑сервис. Оптом и розница. Китай → Бишкек/РФ.</div>
+      </div>
+      <div>
+        <div style="font-weight:700; color:#fff; margin-bottom:8px">Навигация</div>
+        <a href="index.html">Главная</a><br/>
+        <a href="#">Политика конфиденциальности</a>
+      </div>
+      <div>
+        <div style="font-weight:700; color:#fff; margin-bottom:8px">Контакты</div>
+        <a href="tel:+996709751050">+996 709 751-050</a><br/>
+        <a href="mailto:pochta1987.1@gmail.com">pochta1987.1@gmail.com</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MODAL -->
+  <div class="overlay" id="overlay">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <h3 id="modal-title">Быстрый запрос</h3>
+      <div class="row">
+        <input placeholder="Имя" />
+        <input placeholder="Телефон" />
+      </div>
+      <div class="row" style="grid-template-columns:1fr">
+        <textarea placeholder="Ссылка на товар / описание / фото (опционально) "></textarea>
+      </div>
+      <div style="display:flex; gap:10px; margin-top:12px">
+        <button class="btn" onclick="document.getElementById('overlay').style.display='none'">Отмена</button>
+        <button class="btn btn-primary" onclick="document.getElementById('overlay').style.display='none'">Отправить</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Подкатегории «Авто»
+    const subcats = [
+      { key:'electronics', name:'Электроника', icon:'📷' },
+      { key:'interior', name:'Салон', icon:'🪑' },
+      { key:'exterior', name:'Экстерьер', icon:'🚗' },
+      { key:'consumables', name:'Расходники', icon:'🛢️' },
+      { key:'tools', name:'Инструменты/гараж', icon:'🧰' },
+      { key:'safety', name:'Безопасность', icon:'🦺' },
+    ];
+
+    // Товары (пример)
+    const items = [
+      {title:'Видеорегистратор FHD 170°', price:3290, cur:'сом', tag:'Хит', img:'https://picsum.photos/seed/dash/640/480', brand:'Другие', subcat:'electronics', fit:'universal'},
+      {title:'Компрессор портативный ViRON PRO', price:3450, cur:'сом', tag:'Хит', img:'https://picsum.photos/seed/air/640/480', brand:'ViRON PRO', subcat:'tools', fit:'universal'},
+      {title:'Чехлы на сиденья (комплект)', price:2590, cur:'сом', tag:'', img:'https://picsum.photos/seed/seat/640/480', brand:'Другие', subcat:'interior', fit:'sedan'},
+      {title:'Держатель телефона на торпедо', price:350, cur:'сом', tag:'', img:'https://picsum.photos/seed/holder/640/480', brand:'Другие', subcat:'interior', fit:'universal'},
+      {title:'Насадка‑полироль фар', price:790, cur:'сом', tag:'', img:'https://picsum.photos/seed/headlight/640/480', brand:'Другие', subcat:'exterior', fit:'universal'},
+      {title:'Щётка‑скраббер для колёс', price:590, cur:'сом', tag:'', img:'https://picsum.photos/seed/wheel/640/480', brand:'Другие', subcat:'exterior', fit:'universal'},
+      {title:'Фильтр салонный (универсальный)', price:490, cur:'сом', tag:'', img:'https://picsum.photos/seed/filter/640/480', brand:'Другие', subcat:'consumables', fit:'universal'},
+      {title:'Огнетушитель автомобильный 1кг', price:1290, cur:'сом', tag:'', img:'https://picsum.photos/seed/fire/640/480', brand:'Другие', subcat:'safety', fit:'universal'}
+    ];
+
+    const $cards = document.getElementById('cards');
+    const $q = document.getElementById('q');
+    const $brand = document.getElementById('brand');
+    const $fit = document.getElementById('fit');
+    const $sort = document.getElementById('sort');
+    const $resultsInfo = document.getElementById('results-info');
+    const $empty = document.getElementById('empty-state');
+    const $subcats = document.getElementById('subcats');
+
+    // Рендер чипов подкатегорий
+    $subcats.innerHTML = subcats.map(s => `<span class=\"chip\" data-key=\"${s.key}\">${s.icon} ${s.name}</span>`).join('');
+    let activeSub = 'all';
+    $subcats.addEventListener('click', (e)=>{
+      const chip = e.target.closest('.chip');
+      if(!chip) return;
+      document.querySelectorAll('.chip').forEach(c=> c.classList.remove('active'));
+      chip.classList.add('active');
+      activeSub = chip.getAttribute('data-key');
+      applyFilter();
+    });
+
+    function norm(s){return (s||'').toString().toLowerCase().trim();}
+    function fmtPrice(p, cur){return p.toLocaleString('ru-RU') + ' ' + cur;}
+
+    function applyFilter(){
+      const q = norm($q.value);
+      const brand = $brand.value; // all | ViRON PRO | V-Puls | Другие
+      const fit = $fit.value;     // all | universal | sedan | suv | truck
+      let list = items.filter(it => {
+        const okQ = !q || (it.title.toLowerCase().includes(q));
+        const okB = (brand==='all') || (it.brand===brand);
+        const okS = (activeSub==='all') || (it.subcat===activeSub);
+        const okF = (fit==='all') || (it.fit===fit);
+        return okQ && okB && okS && okF;
+      });
+
+      if($sort.value==='cheap') list.sort((a,b)=> a.price-b.price);
+      if($sort.value==='expensive') list.sort((a,b)=> b.price-a.price);
+      render(list);
+    }
+
+    function render(list){
+      if(!list.length){
+        $cards.innerHTML = '';
+        $empty.style.display = 'block';
+        $resultsInfo.textContent = 'Найдено: 0';
+        return;
+      }
+      $empty.style.display = 'none';
+      $resultsInfo.textContent = 'Найдено: ' + list.length;
+      $cards.innerHTML = list.map(it => `
+        <article class=\"card\">
+          <div class=\"thumb\">
+            ${it.tag ? `<span class=\\\"badge\\\">${it.tag}</span>` : ''}
+            <img src=\"${it.img}\" alt=\"${it.title}\" loading=\"lazy\"/>
+          </div>
+          <div class=\"body\">
+            <div class=\"title\">${it.title}</div>
+            <div class=\"meta\">Бренд: ${it.brand} · Раздел: ${it.subcat} · Совместимость: ${it.fit}</div>
+            <div class=\"price\">${fmtPrice(it.price, it.cur)}</div>
+            <div class=\"cta\" style=\"display:flex; gap:10px; margin-top:8px\">
+              <a class=\"btn\" href=\"#\" onclick=\"document.getElementById('overlay').style.display='flex'\">Запрос</a>
+              <a class=\"btn btn-primary\" href=\"https://wa.me/996709751050\" target=\"_blank\">WhatsApp</a>
+            </div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    // Инициализация
+    applyFilter();
+
+    document.getElementById('btn-search').addEventListener('click', applyFilter);
+    $brand.addEventListener('change', applyFilter);
+    $fit.addEventListener('change', applyFilter);
+    $sort.addEventListener('change', applyFilter);
+    let t=null; $q.addEventListener('input', ()=>{ clearTimeout(t); t=setTimeout(applyFilter, 200); });
+  </script>
+</body>
+</html>
